@@ -1,3 +1,11 @@
+name: db-ci
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
 jobs:
   migrate-and-test:
     runs-on: ubuntu-latest
