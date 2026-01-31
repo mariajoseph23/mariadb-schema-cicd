@@ -1,15 +1,6 @@
-name: db-ci
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
 jobs:
   migrate-and-test:
     runs-on: ubuntu-latest
-
     services:
       mariadb:
         image: mariadb:10.11
@@ -26,15 +17,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: SQL guard (block unsafe statements)
         run: ./scripts/sql-guard.sh
-
       - name: Install MariaDB client
         run: |
           sudo apt-get update
           sudo apt-get install -y mariadb-client
-
       - name: Wait for MariaDB
         env:
           DB_HOST: 127.0.0.1
@@ -42,14 +30,12 @@ jobs:
           DB_USER: root
           DB_PASS: rootpass
         run: ./scripts/wait-for-mariadb.sh
-
       - name: Install Flyway
         run: |
           curl -L -o flyway.tar.gz https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.22.0/flyway-commandline-10.22.0-linux-x64.tar.gz
           tar -xzf flyway.tar.gz
           sudo ln -sf "${PWD}/flyway-10.22.0/flyway" /usr/local/bin/flyway
           flyway -v
-
       - name: Run Flyway migrations
         env:
           FLYWAY_URL: jdbc:mysql://127.0.0.1:3306
@@ -57,7 +43,6 @@ jobs:
           FLYWAY_PASSWORD: rootpass
         run: |
           flyway -configFiles=flyway/conf/flyway.conf migrate
-
       - name: Smoke test
         env:
           DB_HOST: 127.0.0.1
@@ -67,7 +52,7 @@ jobs:
         run: |
           mariadb --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" --password="$DB_PASS" < ./scripts/smoke.sql
 
-prod-approval-demo:
+  prod-approval-demo:
     runs-on: ubuntu-latest
     needs: migrate-and-test
     environment: prod
