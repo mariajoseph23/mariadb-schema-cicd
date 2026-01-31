@@ -27,7 +27,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-   - name: SQL guard (block unsafe statements)
+      - name: SQL guard (block unsafe statements)
         run: ./scripts/sql-guard.sh
 
       - name: Install MariaDB client
