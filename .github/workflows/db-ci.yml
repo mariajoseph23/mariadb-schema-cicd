@@ -40,18 +40,20 @@ jobs:
           DB_PASS: rootpass
         run: ./scripts/wait-for-mariadb.sh
 
+      - name: Install Flyway
+        run: |
+          curl -L -o flyway.tar.gz https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.22.0/flyway-commandline-10.22.0-linux-x64.tar.gz
+          tar -xzf flyway.tar.gz
+          sudo ln -sf "${PWD}/flyway-10.22.0/flyway" /usr/local/bin/flyway
+          flyway -v
+
       - name: Run Flyway migrations
         env:
-          FLYWAY_URL: jdbc:mariadb://127.0.0.1:3306
+          FLYWAY_URL: jdbc:mysql://127.0.0.1:3306
           FLYWAY_USER: root
           FLYWAY_PASSWORD: rootpass
         run: |
-          docker run --rm \
-            --network host \
-            -v "${{ github.workspace }}:/workspace" \
-            flyway/flyway:10 \
-            -configFiles=/workspace/flyway/conf/flyway.conf \
-            migrate
+          flyway -configFiles=flyway/conf/flyway.conf migrate
 
       - name: Smoke test
         env:
